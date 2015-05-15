@@ -1,0 +1,75 @@
+#!/usr/bin/perl -alws
+# 2015/02/04 created
+# 2015/03/05 added lowercase for extensions
+# 2015/05/14 added removal of ` (backtick)
+#            added test for file vs directory
+#            added removal of _-_ and multiple underscores
+#            added pretty print for long names during test
+
+use File::Copy qw(move);
+use File::Basename;
+
+#  OPTIONS -d -u -t -v
+#     
+# option to selectively rename directories 
+if ($d) { $directories= 1};
+$d = undef;     # shutoff the warnings 
+
+# option to selectively change dots to underscores 
+if ($u) { $dots= 1};
+$u = undef;     # shutoff the warnings 
+
+# option to selectively test name changes 
+if ($t) { $test= 1};
+$t = undef;     # shutoff the warnings 
+
+if ($v) { $verbose= 1};
+$v = undef;     # shutoff the warnings 
+
+if ($h) {
+    $h = undef;     # shutoff the warnings 
+    printf("fnp [-d] [-u] [-t] [-v] files.....\n");
+    printf("    -d enable changing directories\n");
+    printf("    -u enable changing dots to underscores\n");
+    printf("    -t test; show new filenames but don't change them\n");
+    printf("    -v verbose\n");
+    exit;
+}
+
+foreach $fname (@ARGV) {
+    $basename = $ext = "";
+    ($basename, $path, $ext) = fileparse($fname, qr/\.[^.]*$/);
+    undef $path ;   # stop warning on only used once
+ 
+    $newname = lc $basename;
+    $newname =~ s/ /_/g;
+    $newname =~ s/[\]\[\${}!!@#%^&*()+=|:;`"'<>?]//g;
+    $newname =~ s/_-_/_/g;
+    $newname =~ s/_+/_/g;
+    $newname =~ s/\./_/g if ($dots);
+    $newname = $newname . lc $ext;
+
+    # -t option to test things
+    if ($test) {
+        if(length($fname) > 25){
+            printf("%s\n--> %s\n", $fname, $newname);
+        } else {
+            printf("%-25s\t%s\n", $fname, $newname);
+        }
+        next;
+    }
+
+    if (-e $newname){      # if name exists skip this file
+        printf("skipping existing\t%s\n", $newname) if ($verbose);
+        next;
+    }
+
+    if (-d $fname && (!$directories)){   # skip if no directory option
+        printf("skipping directory\t%s directory\n", $fname) if ($verbose);
+        next;
+    }
+
+    printf("CHANGING %s\t--> %s\n", $fname, $newname) if ($verbose);
+    move $fname, $newname;
+} #FOREACH
+

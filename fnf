@@ -1,0 +1,103 @@
+#!/bin/bash
+#
+# fnf - file name fixer
+#
+# script to change spaces to underscores in file names
+# removes spaces around a dash 
+#
+# 2003/04/12 created from lcf nsf
+# 2003/10/19 added options and rename ablility
+# 2004/09/21 added removal of weird chars.... []{}()!#
+# 2005/05/08 added removal of ' 
+# 2011/11/19 added removal of :
+# 2014/04/08 .... I really need to rewrite this in perl!!!
+#
+
+# numbers & patterns used to rename files
+pattern=`date +"%Y-%m-%d"`
+num="0"
+numbase="6"
+[ "$#" -le "100000" ] && numbase="5"
+[ "$#" -le "10000"  ] && numbase="4"
+[ "$#" -le "1000"   ] && numbase="3"
+
+# set all options FALSE
+option_l="true"
+option_s="true"
+option_r=""
+opt_help=""
+verbose=""
+
+while getopts lshrvp:n: nextop 
+do
+ case "$nextop"
+ in
+    l) option_l="" ;;
+    s) option_s="" ;;
+    h) opt_help="true" ;;
+	p) option_r="true" ; pattern="$OPTARG" ;;
+	r) option_r="true" ;;
+	v) verbose="true" ;;
+	n) num="$OPTARG" ;;
+   \?) echo "option error $OPTARG"
+       exit 1 ;;
+esac
+done
+shiftcount=`expr $OPTIND - 1`
+shift $shiftcount
+
+if [ "$opt_help" ]
+then
+	echo "fnf [-l] [-s] [-r] [-h] [-p pattern] [-n number] file... "
+	exit 0
+fi
+
+
+for file in  "$@"
+do
+num=$((num+1))
+z1="000000000$num"
+num1="${z1:$((${#z1} - $numbase ))}"
+
+# ok, I know this is complicated but it works
+ext=` echo $file | gawk --re-interval ' {
+# rule1 - filename must start with a letter or number or underscore
+# rule2 - suffix is a dot followed by one to four letters
+suff=""
+fname=tolower($0)
+rule1=match(fname, /^[a-z0-9_]/)
+
+if (rule1 != 0) {
+	rule2=match(fname, /\.[a-z]{1,4}$/)
+	if (rule2 != 0) {
+	suff=substr(fname, RSTART+1) 
+	}
+}
+if (suff != "") printf(".%s",  suff)
+}'  `
+
+
+if [ -f "$file" ]
+then
+	newfile="$file"
+	[ "$option_l" ] &&  newfile=`echo $newfile | tr [:upper:] [:lower:]`
+	[ "$option_l" ] &&  newfile=`echo $newfile | tr -dc [:print:]`
+	[ "$option_s" ] &&  newfile=`echo $newfile | sed 's/ - /-/g' `
+	[ "$option_s" ] &&  newfile=`echo $newfile | sed 's/[][{}()!:#]//g' `
+	[ "$option_s" ] &&  newfile=`echo $newfile | sed "s/'//g" `
+	[ "$option_s" ] &&  newfile=`echo $newfile | sed "s/,//g" `
+	[ "$option_s" ] &&  newfile=`echo $newfile | sed 's/ /_/g' `
+	[ "$option_r" ] &&  newfile="${pattern}_${num1}${ext}"
+	if [ "$file" != "$newfile" ]
+	then
+		[ "$verbose" ] && echo -e "$file\t---->\t $newfile"
+		if [ -a $newfile ]
+		then
+			echo "Error: file $newfile exists.... skipping $file "
+		else
+			mv "$file" "$newfile"
+		fi
+	fi
+fi
+done
+

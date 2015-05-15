@@ -1,16 +1,16 @@
 
-Just a couple scripts to fix filename on the linux/unix command line.
+Just a couple of scripts used to fix filename on the linux/unix command line.
 
 When my children were growing up I gave them two rules:
-+ don't be rule
++ don't be rude
 + no spaces in filenames
 
 These scripts will remove space and a bunch of unwanted character from
-filenames.  I'm not sure why anyone would put any of these 
+filenames.  I'm not sure why anyone would put 
 ][${}!!@#%^&()+=|:;`"'<>?*  in a filename but they do.
 
 
-fnf -- "(F)ile (N)ame (F)ix" 
+fnf -- "(F)ile (N)ame (F)ix"  
 Bash script to remove unwanted characters.  It also support renaming of files
 based on patterns or the date.  It does not support change directory names. 
 

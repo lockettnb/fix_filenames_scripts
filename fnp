@@ -39,11 +39,15 @@ if ($h) {
 foreach $fname (@ARGV) {
     $basename = $ext = "";
     ($basename, $path, $ext) = fileparse($fname, qr/\.[^.]*$/);
+
+    if(-d $fname) {
+        if($basename eq '') {$basename = $path};
+    }
     undef $path ;   # stop warning on only used once
  
     $newname = lc $basename;
     $newname =~ s/ /_/g;
-    $newname =~ s/[\]\[\${}!!@#%^&*()+=|:;`"'<>?]//g;
+    $newname =~ s/[\]\[\${}!,@#%^&*()+=|:;`"'<>?]//g;
     $newname =~ s/_-_/_/g;
     $newname =~ s/_+/_/g;
     $newname =~ s/\./_/g if ($dots);

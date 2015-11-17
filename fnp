@@ -5,6 +5,8 @@
 #            added test for file vs directory
 #            added removal of _-_ and multiple underscores
 #            added pretty print for long names during test
+# 2015/05/26 added removal of comma and fix dir bug
+#
 
 use File::Copy qw(move);
 use File::Basename;
@@ -47,7 +49,7 @@ foreach $fname (@ARGV) {
  
     $newname = lc $basename;
     $newname =~ s/ /_/g;
-    $newname =~ s/[\]\[\${}!,@#%^&*()+=|:;`"'<>?]//g;
+    $newname =~ s/[\]\[\${}!,@#%^&*()+=|:;`"'+<>?]//g;
     $newname =~ s/_-_/_/g;
     $newname =~ s/_+/_/g;
     $newname =~ s/\./_/g if ($dots);

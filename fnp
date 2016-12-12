@@ -1,4 +1,4 @@
-#!/usr/bin/perl -alws
+#!/usr/bin/perl -lws
 # 2015/02/04 created
 # 2015/03/05 added lowercase for extensions
 # 2015/05/14 added removal of ` (backtick)
@@ -6,6 +6,7 @@
 #            added removal of _-_ and multiple underscores
 #            added pretty print for long names during test
 # 2015/05/26 added removal of comma and fix dir bug
+# 2016/12/12 removed -a option as newer perl didn't like it
 #
 
 use File::Copy qw(move);

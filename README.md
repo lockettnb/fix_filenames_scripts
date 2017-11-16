@@ -18,4 +18,6 @@ fnp -- (F)ix (N)ames with (P)erl or (F)ix (N)ames (P)lease
 Perl script to remove unwanted characters in filenames and optionally directory
 names. It optionally supports translating all dots/periods to
 underscores except for the one used in the filename extension.
+This program only works for file in the current directory.  It does not handle recursive
+directory names, yet.
 

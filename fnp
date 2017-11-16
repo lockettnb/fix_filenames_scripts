@@ -6,21 +6,23 @@
 #            added removal of _-_ and multiple underscores
 #            added pretty print for long names during test
 # 2015/05/26 added removal of comma and fix dir bug
-# 2016/12/12 removed -a option as newer perl didn't like it
+# 2016/02/07 changed to remove dots by default, added new p option to shut
+# 2017/11/16 removed command line option (a) as the newer perls do not like it
 #
 
 use File::Copy qw(move);
 use File::Basename;
 
-#  OPTIONS -d -u -t -v
+#  OPTIONS -d -p -t -v
 #     
 # option to selectively rename directories 
 if ($d) { $directories= 1};
 $d = undef;     # shutoff the warnings 
 
-# option to selectively change dots to underscores 
-if ($u) { $dots= 1};
-$u = undef;     # shutoff the warnings 
+$dots=1;  # default to get rid of extra dots/periods
+# option to disable the change of dots to underscores 
+if ($p) { $dots= 0};
+$p = undef;     # shutoff the warnings 
 
 # option to selectively test name changes 
 if ($t) { $test= 1};
@@ -31,9 +33,9 @@ $v = undef;     # shutoff the warnings
 
 if ($h) {
     $h = undef;     # shutoff the warnings 
-    printf("fnp [-d] [-u] [-t] [-v] files.....\n");
+    printf("fnp [-d] [-p] [-t] [-v] files.....\n");
     printf("    -d enable changing directories\n");
-    printf("    -u enable changing dots to underscores\n");
+    printf("    -p keep periods, do not change periods (dots) to underscores\n");
     printf("    -t test; show new filenames but don't change them\n");
     printf("    -v verbose\n");
     exit;
@@ -52,8 +54,9 @@ foreach $fname (@ARGV) {
     $newname =~ s/ /_/g;
     $newname =~ s/[\]\[\${}!,@#%^&*()+=|:;`"'+<>?]//g;
     $newname =~ s/_-_/_/g;
-    $newname =~ s/_+/_/g;
+    $newname =~ s/^-//g;
     $newname =~ s/\./_/g if ($dots);
+    $newname =~ s/_+/_/g;
     $newname = $newname . lc $ext;
 
     # -t option to test things
